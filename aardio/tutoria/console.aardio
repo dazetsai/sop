@@ -1,0 +1,13 @@
+import console;
+
+console.showLoading("test");
+
+sleep(1000);
+
+console.log('test char');
+
+console.dump({a=123,b=456});
+
+console.dumpJson({a=123,b=456});
+
+console.pause(true);

@@ -28,7 +28,6 @@ SetCapslockState, AlwaysOff
     }
 return
 
-
 ; ;; vim navigation with hyper
 ; ~Capslock & h:: Send {Left}
 ; ~Capslock & l:: Send {Right}
