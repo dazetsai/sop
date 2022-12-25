@@ -1,4 +1,9 @@
 ﻿
 namespace daze{
-	m_daze_version="2022/12/25";	
+	m_daze_version="2022/12/25";
+	
+	f_daze_func=function(){
+		return m_daze_version;
+	}
+		
 }
