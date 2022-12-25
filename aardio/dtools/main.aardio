@@ -9,6 +9,13 @@ custom={cls="custom";left=5;top=96;right=811;bottom=560;bgcolor=16777215;db=1;dl
 )
 /*}}*/
 
+
+import console;
+import daze;
+
+console.log(daze.m_daze_version);
+
+
 // 添加自定义的标题栏、窗口边框、阴影等
 import win.ui.simpleWindow;
 win.ui.simpleWindow( mainForm );
