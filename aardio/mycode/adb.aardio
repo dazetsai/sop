@@ -1,0 +1,11 @@
+﻿//Test
+
+import console;
+
+import process.adb;
+
+info=process.adb;
+
+console.log(info.getState());
+
+console.pause();

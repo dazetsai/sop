@@ -1,0 +1,24 @@
+﻿//read binary data and print to string
+
+import console;
+
+import fsys
+
+path="~/res/aardio.bin";
+console.log(path)
+console.pause();
+file = io.open(path,"rb");
+file.seek("set",6)
+var byte = file.read( {INT num} ).num //读取一个DWORD类型数据
+file.close()
+
+io.open()
+io.print(
+    string.format("0x%x",byte ) //绝对是可以的
+)
+
+io.print(byte)//这里打印byte想显示16进制数据
+execute("pause")
+io.close()
+console.pause();
+
