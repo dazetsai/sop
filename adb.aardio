@@ -1,10 +1,25 @@
-﻿//Test
+﻿//Snippets Path
 import ide;
+import fsys;
 import console;
 
+//open console
+console.open();
+
+// get current path
+var curpath=fsys.path.long("/");
+console.log(tostring(curpath));
+
+// get aardio exe path
+var curpath=fsys.path.long("~");
+console.log(tostring(curpath));
+
+//Project Dir
 console.log(ide.getProjectDir());
-console.log(ide.getActiveDocPath());
 
 
-
+// stop the action
 console.pause();
+
+// close console
+console.close();
