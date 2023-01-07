@@ -1,0 +1,10 @@
+﻿//Test
+import ide;
+import console;
+
+console.log(ide.getProjectDir());
+console.log(ide.getActiveDocPath());
+
+
+
+console.pause();
