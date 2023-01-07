@@ -17,6 +17,8 @@ console.log(tostring(curpath));
 //Project Dir
 console.log(ide.getProjectDir());
 
+//Active Doc Dir
+console.log(ide.getActiveDocPath());
 
 // stop the action
 console.pause();
