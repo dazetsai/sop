@@ -1,2 +1,3 @@
-aardio/tutoria/.build/mp.lock
-aardio/tutoria/dist/tutoria.exe
+*.lock
+*.exe
+*.bak

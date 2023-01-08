@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="Top" libEmbed="true" icon="..." ui="console" output="top.exe" CompanyName="請修改" FileDescription="請修改" LegalCopyright="Copyright (C) MIT" ProductName="請修改" InternalName="請修改" FileVersion="0.0.1.001" ProductVersion="0.0.1.001" publishDir="/dist/">
+	<folder name="res" path="res" embed="true"/>
+	<folder name="env" path="env" embed="false"/>
+	<folder name="ext" path="ext" embed="true"/>
+	<folder name="ui"  path="ui" embed="ture"/>
+	<folder name="lib" path="lib" embed="ture"/>	
+</project>
