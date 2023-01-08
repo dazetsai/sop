@@ -1,0 +1,197 @@
+import wsock.tcp.client;
+class adb{
+    ctor(){
+            var string = ..string;
+            var encode = function(data){
+                var len = #data;
+                    return string.format("%04X%s",len,data);
+            }
+            var int_encode = function(n){
+                 var s = string.format("%08X",n);
+                 s = string.unhex(s,"");
+                     return string.reverse(s);
+            }
+            var int_decode = function(s){
+                s = string.reverse(s);
+                s = string.hex(s,"");
+                return tonumber(s,16);
+            }
+            var soketConnect = function(){
+                    var client = ..wsock.tcp.client();
+                    client.onClosed = function(){
+                            ..console.log("套接字关闭!")
+                    }
+                    var re,err = client.connect("127.0.0.1",5037);
+                    if(re)
+                            return client;
+
+                    return null,err;
+            }
+    };
+
+        sendHostCommand = function(command) {
+                var client,err = soketConnect();
+                if(!client) return null,err;
+
+                var data = encode(command)
+                var re,err = client.send(data);
+                if(!re)
+                        return null,err;
+
+                var ok = client.read(4);
+                if(ok == "OKAY" ){
+                        var ret = "";
+                        var len = client.read(4);
+                        len = tonumber(len,16) : 0;
+                        if(len > 0 ){
+                                ret = client.read(len);
+                        }
+                        client.close();
+                        return ret;
+                }
+                var err = client.readAll();
+                client.close();
+                ..console.debug("error in response to adb host command", command, err)
+                return null,err;
+    }
+
+    devices = function(){
+        var ret,err = this.sendHostCommand("host:devices-l");
+        if(!ret) return null,err;
+            var devices = {};
+            for line in string.lines(ret){
+                    var serialno,status = string.match(line,"^(\S+)\s+(<device>|<offline>|<unknown>)");
+                    if(serialno){
+                            var dev = {serialno=serialno;status=status};
+                            var name = string.match(line,"model\:(\w+)");
+                            dev.name = name ? string.replace(name,"_"," ") : serialno;
+                            dev.properties = line;
+                            ..table.push(devices,dev);
+                    }
+            }
+            return devices;
+    }
+
+          killServer = function(){
+                  this.sendHostCommand("host:kill");
+          }
+
+          sendClientCommand = function(serialno,command){
+                  var client,err = soketConnect();
+                  if(!client ) return null,err;
+
+                  var transport = "host:transport:" + serialno;
+                  var re,err = client.send(encode(transport));
+                  if(!re) return null,err;
+
+                  var ok = client.read(4);
+                  if(ok == "OKAY"){
+                          ok,err = client.send(encode(command));
+                          if(ok){
+                                  ok = client.read(4);
+                                  ..console.log("clientCommand return:",command,ok)
+                                  if(ok == "OKAY")
+                                          return client;
+                          }
+                  }
+                  client.close();
+          }
+
+          shell = function(serialno,command){
+                  var client,err = this.sendClientCommand(serialno,"shell:" ++ command);
+                  if(!client ) return null,err;
+                  var out = {};
+                  for(str,readSize,remainSize in client.eachRead() ){
+                          ..table.push(out,str);
+                          if( remainSize ==0 )
+                                  break ;
+                  }
+                  client.close();
+                  return ..string.join(out);
+          }
+
+          forward = function(serialno,from,to){
+                  var command = string.format("host-serial:%s:forward:%s;%s",serialno,from,to);
+                  return this.sendHostCommand(command);
+          }
+
+          push = function(serialno,remotePath,localPath){
+                  var client,err = this.sendClientCommand(serialno,"sync:");
+                  if(!client) return null,"打开同步模式失败:"++tostring(err);
+
+                  var path = remotePath ++ ",0644";
+                  var re,err = client.write("SEND",int_encode(#path),path);
+                  if(!re) return null,err;
+
+                  var file = ..io.open(localPath,"rb");
+                  var size,errMsg = file.size();
+                  while(size > 0 ){
+                          var n = ..math.min(size,65536);
+                          var buffer = ..raw.buffer(n);
+                          var len,err = file.readBuffer(buffer,n);
+                          if(!len){
+                                  errMsg = "读取本地文件失败:"++tostring(err);
+                                  break ;
+                          }
+                          size = size - len;
+
+                        var re,err = client.write("DATA",int_encode(len),buffer);
+                          if(!re){
+                                  errMsg = "发送数据失败:"++tostring(err);
+                                  break ;
+                          }
+                  }
+                  file.close();
+                  if(size == 0){//发送完毕
+                          client.write("DONE"++string.repeat(4));
+                          var ok,err = client.read(4);
+                          if(ok=="OKAY")
+                                  return remotePath;
+                          errMsg = err;
+                  }
+                  return null,errMsg;
+          }
+
+          pull = function(serialno,remotePath,localPath){
+                  var client,err= this.sendClientCommand(serialno,"sync:");
+                  if(!client) return null,"打开同步模式失败:"++tostring(err);
+
+                  var re,err = client.write("RECV",int_encode(#remotePath),remotePath);
+                  if(!re) return null,err;
+
+                  var file = ..io.open(localPath,"wb");
+                  var eventId,errMsg = client.read(4);
+                  while(eventId == "DATA"){
+                          var len,err = client.read(4);
+                          if(!len){
+                                  errMsg = err;
+                                  break ;
+                          }
+
+                          var n = int_decode(len);
+                          var buffer,err = client.read(n);
+                          if(!buffer){
+                                  errMsg = err;
+                                  break ;
+                          }
+                          file.write(buffer);
+                          eventId,errMsg = client.read(4);
+                  }
+                  file.close();
+                  if( eventId == "DONE"){
+                          client.close();
+                          return localPath;
+                  }
+                  return null,errMsg;
+          }
+}
+
+/**intellisense()
+adb() = !adb.
+!adb.devices() = 获取当前设备
+!adb.killServer() = 关闭adb服务
+!adb.shell(.(设备序列号,命令) = 执行shell命令
+!adb.forward(.(设备序列号,本地端口,远程端口) = tcp端口映射
+!adb.push(.(设备序列号,远程存储路径,本地文件路径) = 发送文件
+!adb.pull(.(设备序列号,远程文件路径,本地存储路径) = 接收文件
+end intellisense**/
