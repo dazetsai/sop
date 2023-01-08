@@ -1,4 +1,4 @@
-import console; 
+import console;
 import fsys;
 import fsys.config;
 import fsys.table;
@@ -13,18 +13,21 @@ import inet.url;
 import inet.urlpart
 import inet.http;
 //tcp socket transaction
-import wsock.tcp.client; 
+import wsock.tcp.client;
 import wsock.tcp.server;
 //database:sqlite
 import sqlite;
 //正则表达式( preg )
 import preg;
-//batch 
+//batch
 import process.batch;
 import process.popen
 
 //////////////////////////////////////////////////////
 console.open();
+
+// import fsys.junction;
+// fsys.junction.create("~\lib\你的库名字","你实际的库目录所在硬盘路径");
 
 var num="daze"
 console.log("Hello" ,num );
